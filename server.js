@@ -7,7 +7,7 @@ const
 
 app.use(logger('dev'))
 
-mongoose.connect('mongodb://localhost/minionsdb'), function(err) {
+mongoose.connect('mongodb://localhost/simpleappdb'), function(err) {
   console.log(err || "Connected to MongoDB.")
 }
 
