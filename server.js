@@ -2,7 +2,8 @@ const
   express = require('express'),
   app = express(),
   logger = require('morgan'),
-  mongoose = require('mongoose')
+  mongoose = require('mongoose'),
+  User = require('./models/User')
 
 
 app.use(logger('dev'))
@@ -17,7 +18,9 @@ app.listen(3000, function(err) {
 })
 
 app.get('/users', function(req, res) {
-  res.send("Users index...")
+  User.find({}, function(err, users) {
+    res.send(users)
+  })
 })
 
 app.get('/users/:id', function(req, res) {
