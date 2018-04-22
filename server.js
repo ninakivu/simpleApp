@@ -6,25 +6,29 @@ const
   mongoose = require('mongoose'),
   User = require('./models/User')
 
+mongoose.connect('mongodb://localhost/simpleappdb', (err) => {
+  console.log(err || "Connected to MongoDB.")
+})
 
 app.use(logger('dev'))
 app.use(bodyParser.json())
+app.use(express.static(`${__dirname}/public`))
 
-mongoose.connect('mongodb://localhost/simpleappdb'), function(err) {
-  console.log(err || "Connected to MongoDB.")
-}
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`)
+})
 
-
-
-
-app.get('/users', function(req, res) {
-  User.find({}, function(err, users) {
-    res.json(users)
+// list of users:
+app.get('/users', (req, res) => {
+  User.find({}, (err, allUsers) => {
+    if(err) return console.log(err)
+    res.json(allUsers)
   })
 })
 
-app.get('/users/:id', function(req, res) {
-  User.findById(req.params.id, function(err, thatUser){
+// show a specific user
+app.get('/users/:id', (req, res) => {
+  User.findById(req.params.id, (err, thatUser) => {
     if(err) {
       res.json({message:"There was a problem."})
       console.log(err)
@@ -35,13 +39,32 @@ app.get('/users/:id', function(req, res) {
 })
 
 // create user:
-app.post('/users', function(req, res) {
-  User.create(req.body, function(err, brandNewUser){
+app.post('/users', (req, res) => {
+  User.create(req.body, (err, brandNewUser) => {
     if(err) return console.log(err)
     res.json({message: "User created.", user: brandNewUser})
   })
 })
 
-app.listen(3000, function(err) {
+// delete user:
+app.delete('/users/:id', (req, res) => {
+  User.findByIdAndRemove(req.params.id, (err, deletedUser) => {
+    if(err) return console.log(err)
+    res.json({message: "User deleted😔", user: deletedUser})
+  })
+})
+
+// update user:
+app.patch('/users/:id', (req, res) => {
+  User.findById(req.params.id, (err, user) => {
+    if(err) return console.log(err)
+    user.save((err, updatedUser) => {
+      res.json({message: "User updated.", user: updatedUser})
+    })
+  })
+})
+
+
+app.listen(3000, (err) => {
   console.log(err || "Server running on 3000.")
 })
